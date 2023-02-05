@@ -1,7 +1,6 @@
 
 // System Libraries
 #include <iostream>
-#include <unistd.h>
 
 #include "core/server.h"
 
