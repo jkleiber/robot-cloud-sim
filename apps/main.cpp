@@ -3,7 +3,7 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "web/server.h"
+#include "core/server.h"
 
 int main(int argc, char **argv)
 {

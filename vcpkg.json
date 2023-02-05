@@ -1,0 +1,9 @@
+{
+    "name": "robot-cloud-sim",
+    "version-string": "0.1.0",
+    "dependencies": [
+        "eigen3",
+        "asio",
+        "crow"
+    ]
+}
