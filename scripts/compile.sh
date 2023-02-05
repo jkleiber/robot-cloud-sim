@@ -4,7 +4,9 @@
 cd "$(dirname "$0")"
 SCRIPTS_DIR="$(pwd)"
 COMPILE_WD="$(pwd)/../build"
+APP_DIR="$(pwd)/../build/apps"
 CONFIG_WD="$(pwd)/../config"
+TEMPLATES_WD="$(pwd)/../templates"
 VCPKG_PATH="$(pwd)/../vcpkg"
 
 # Use vcpkg toolchain
@@ -21,6 +23,16 @@ if [ $? -ne 0 ]
 then
     echo "Error: CMake build failed!"
     exit 2
+fi
+
+# Copy the templates to the binary location, exit on failure
+cd $APP_DIR
+rm -rf $APP_DIR/templates
+cp -R $TEMPLATES_WD $APP_DIR
+if [ $? -ne 0 ]
+then
+    echo "Error: Failed to copy templates"
+    exit 3
 fi
 
 # Copy the current configuration to the binary location, exit on failure

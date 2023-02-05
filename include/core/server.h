@@ -9,6 +9,7 @@ public:
     Server() {}
     ~Server() {}
 
+    void Init();
     void Start();
 
 private:
