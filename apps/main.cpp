@@ -5,11 +5,7 @@
 
 int main(int argc, char **argv)
 {
-    // Run forever
-    while (true)
-    {
-        usleep(100000);
-    }
+    std::cout << "Hello robots\n";
 
     return 0;
 }

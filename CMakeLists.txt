@@ -57,9 +57,6 @@ endif()
 # GIT_TAG 8.0.1)
 # FetchContent_MakeAvailable(fmtlib)
 
-# Third party libraries are here
-add_subdirectory(third_party)
-
 # The compiled library code is here
 add_subdirectory(src)
 

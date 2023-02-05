@@ -5,23 +5,21 @@ cd "$(dirname "$0")"
 SCRIPTS_DIR="$(pwd)"
 COMPILE_WD="$(pwd)/../build"
 CONFIG_WD="$(pwd)/../config"
+VCPKG_PATH="/opt/vcpkg"
 
-# Change to build directory
-cd $COMPILE_WD
-
-# CMake the code, exit on failure
-cmake ..
+# Use vcpkg toolchain
+cmake -B $COMPILE_WD -S .. -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake
 if [ $? -ne 0 ]
 then
-    echo "Error: CMake failed!"
+    echo "Error: CMake vcpkg failed!"
     exit 1
 fi
 
-# Make the quadcopter code, exit on failure
-make
+# CMake the code, exit on failure
+cmake --build $COMPILE_WD 
 if [ $? -ne 0 ]
 then
-    echo "Error: make failed!"
+    echo "Error: CMake build failed!"
     exit 2
 fi
 
