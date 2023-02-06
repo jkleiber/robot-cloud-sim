@@ -11,4 +11,4 @@ cmake -B %COMPILE_WD% -S .. -DCMAKE_TOOLCHAIN_FILE=%VCPKG_PATH%/scripts/buildsys
 
 cmake --build %COMPILE_WD% 
 
-xcopy /e /k /h /i ..\templates ..\build\apps\Debug\templates
+xcopy /e /k /h /i /Y ..\templates ..\build\apps\Debug\templates
