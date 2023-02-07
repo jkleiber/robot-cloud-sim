@@ -8,8 +8,8 @@ file(GLOB SOURCE_LIST
     CONFIGURE_DEPENDS
     "${RobotCloudSim_SOURCE_DIR}/src/boat/*.cpp")
 
-# list(APPEND SOURCE_LIST ${PROTO_SRC})
-# list(APPEND HEADER_LIST ${PROTO_HEADER})
+list(APPEND SOURCE_LIST ${PROTO_SRC})
+list(APPEND HEADER_LIST ${PROTO_HEADER})
 
 # Create the control simulation library
 add_library(cloud_sim_boat ${SOURCE_LIST} ${HEADER_LIST})
@@ -22,7 +22,7 @@ find_package(Eigen3 CONFIG REQUIRED)
 find_package(RapidJSON CONFIG REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
 
-# message(STATUS "foo include dir: ${Protobuf_INCLUDE_DIRS}")
+message(STATUS "foo include dir: ${Protobuf_LIBRARIES}")
 
 # Target all library dependencies
 target_link_libraries(cloud_sim_boat
@@ -31,12 +31,14 @@ target_link_libraries(cloud_sim_boat
     asio::asio
     Crow::Crow
     rapidjson
-    ${Protobuf_LIBRARIES}
+    protobuf::libprotoc
+    protobuf::libprotobuf
+    protobuf::libprotobuf-lite
     cloud_sim_msg
 )
 
 # Target the include folder
-target_include_directories(cloud_sim_boat PUBLIC ../../include)
+target_include_directories(cloud_sim_boat PUBLIC ../../include ${Protobuf_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}/src/gen)
 
 # All users of this library will need at least C++17
 target_compile_features(cloud_sim_boat PUBLIC cxx_std_17)

@@ -25,4 +25,7 @@ private:
 
     // Simulator data
     BoatData boat_data_;
+
+    // Time
+    double t_;
 };

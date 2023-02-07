@@ -4,6 +4,7 @@
 bool BoatSimulator::Init()
 {
     // TODO: make configurable
+    t_ = 0;
     boat_data_.sim_info.dt = 0.01;
 
     // Initialize server
@@ -24,12 +25,21 @@ bool BoatSimulator::Run()
     VERIFY(boat_sys_ != nullptr);
 
     // Start up the server
+    std::cout << "YEEE\n";
     VERIFY(server_->Start());
+    std::cout << "YEET\n";
 
     // Run the dynamics
-    while (1)
+    while (true)
     {
+        std::cout << "YEEE\n";
         // VERIFY(boat_sys_->Update())
+        VERIFY(server_->Update(t_));
+
+        std::cout << t_ << " sec\n";
+
+        // Update the time
+        t_ += boat_data_.sim_info.dt;
     }
 
     return true;

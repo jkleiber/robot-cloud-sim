@@ -21,10 +21,11 @@ public:
 
     bool Init();
     bool Start();
-    bool Update();
+    bool Update(double t);
 
 private:
     crow::SimpleApp app_;
+    std::future<void> app_result_;
 
     crow::websocket::connection *conn_;
 

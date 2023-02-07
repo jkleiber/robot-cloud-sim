@@ -5,7 +5,8 @@
             "includePath": [
                 "${workspaceFolder}/**",
                 "/opt/vcpkg",
-                "/opt/vcpkg/installed/x64-linux/include"
+                "/opt/vcpkg/installed/x64-linux/include",
+                "${workspaceFolder}/build/src"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

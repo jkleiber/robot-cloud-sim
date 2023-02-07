@@ -26,11 +26,12 @@
         // msg_p.innerHTML = event.data;
         // I retrieve the Base64 Encoded string
         msg = event.data
+        console.log("Received: " + msg)
         // I transform such string to the typed array needed
         buffer = Uint8Array.from(atob(msg), c => c.charCodeAt(0))
 
         // Initiate the Protobuf library by opening the .proto file
-        protobuf.load("/msg/boat_msg.proto", function (err, root) {
+        protobuf.load("/static/msg/boat_msg.proto", function (err, root) {
 
             // Retrieve the type of message I want to decode from the .proto file
             var BoatMessage = root.lookupType("BoatMessage");
@@ -54,7 +55,7 @@
     };
 
     socket.onerror = function (error) {
-        console.log(`[error] ${error}`);
+        console.log(`[error] ${error.data}`);
     };
 </script>
 
