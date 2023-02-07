@@ -7,4 +7,4 @@ APP_BIN="$(pwd)/../build/apps"
 
 # Change to the robot binaries directory and run the simulator code
 cd ${APP_BIN}
-./robot_cloud_sim
+./boat_sim

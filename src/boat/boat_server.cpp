@@ -8,11 +8,29 @@ bool BoatServer::Init()
         []()
         {
             crow::mustache::context ctx;
-            auto page = crow::mustache::load("crow_test.html");
+            auto page = crow::mustache::load("boat_sim.html");
             return page.render(ctx);
         });
 
-    CROW_ROUTE(app_, "/boat/<path>")
+    CROW_ROUTE(app_, "/boat/ws")
+        .websocket()
+        .onopen([&](crow::websocket::connection &conn)
+                { CROW_LOG_INFO << "new websocket connection"; })
+        .onclose(
+            [&](crow::websocket::connection &conn, const std::string &reason)
+            { CROW_LOG_INFO << "websocket connection closed: " << reason; })
+        .onmessage(
+            [&](crow::websocket::connection &conn, const std::string &data,
+                bool is_binary)
+            {
+                std::cout << "Received message: " << data << "\n";
+                if (is_binary)
+                    conn.send_binary(data);
+                else
+                    conn.send_text(data);
+            });
+
+    CROW_ROUTE(app_, "/b/<path>")
     (
         [](std::string path)
         {
