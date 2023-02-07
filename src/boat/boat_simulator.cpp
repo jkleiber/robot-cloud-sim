@@ -7,7 +7,7 @@ bool BoatSimulator::Init()
     boat_data_.sim_info.dt = 0.01;
 
     // Initialize server
-    server_ = std::make_shared<BoatServer>();
+    server_ = std::make_shared<BoatServer>(&boat_data_.state);
     VERIFY(server_->Init());
 
     // Initialize boat dynamics

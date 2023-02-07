@@ -4,6 +4,8 @@
     "dependencies": [
         "eigen3",
         "asio",
-        "crow"
+        "crow",
+        "rapidjson",
+        "protobuf"
     ]
 }

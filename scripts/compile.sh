@@ -8,6 +8,7 @@ APP_DIR="$(pwd)/../build/apps"
 CONFIG_WD="$(pwd)/../config"
 TEMPLATES_WD="$(pwd)/../templates"
 VCPKG_PATH="$(pwd)/../vcpkg"
+PROTO_DIR="$(pwd)/../src/msg"
 
 # Use vcpkg toolchain
 cmake -B $COMPILE_WD -S .. -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake
@@ -32,6 +33,16 @@ cp -R $TEMPLATES_WD $APP_DIR
 if [ $? -ne 0 ]
 then
     echo "Error: Failed to copy templates"
+    exit 3
+fi
+
+# Copy the protobuf messages to the binary location, exit on failure
+cd $APP_DIR
+rm -rf $APP_DIR/templates/msg
+cp -R $PROTO_DIR/*.proto $TEMPLATES_WD/msg 
+if [ $? -ne 0 ]
+then
+    echo "Error: Failed to copy protocols"
     exit 3
 fi
 

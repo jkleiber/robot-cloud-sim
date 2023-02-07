@@ -2,6 +2,8 @@
 
 <head>
     <title>Boat Simulator</title>
+
+    <script src="//cdn.rawgit.com/dcodeIO/protobuf.js/6.10.2/dist/protobuf.min.js"></script>
 </head>
 
 <body>
@@ -11,6 +13,7 @@
 
 <script>
     let socket = new WebSocket("ws://localhost:4001/boat/ws");
+    socket.binaryType = 'arraybuffer'
 
     socket.onopen = function (e) {
         console.log("[open] Connection established");
@@ -20,7 +23,24 @@
 
     socket.onmessage = function (event) {
         var msg_p = document.getElementById("message");
-        msg_p.innerHTML = event.data;
+        // msg_p.innerHTML = event.data;
+        // I retrieve the Base64 Encoded string
+        msg = event.data
+        // I transform such string to the typed array needed
+        buffer = Uint8Array.from(atob(msg), c => c.charCodeAt(0))
+
+        // Initiate the Protobuf library by opening the .proto file
+        protobuf.load("/msg/boat_msg.proto", function (err, root) {
+
+            // Retrieve the type of message I want to decode from the .proto file
+            var BoatMessage = root.lookupType("BoatMessage");
+
+            // Finally I can decode my message
+            var message = BoatMessage.decode(buffer);
+
+            // message now contains an object with the properties specified in the .proto file
+            console.log(message)
+        });
     };
 
     socket.onclose = function (event) {

@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package msg;
+
+message BoatMessage {
+    optional double lat = 1;
+    optional double lon = 2;
+    optional double yaw = 3;
+}

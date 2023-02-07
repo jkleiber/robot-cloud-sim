@@ -2,17 +2,31 @@
 #pragma once
 
 #include <crow.h>
+#include <crow/websocket.h>
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
 #include <string.h>
+
+#include "boat/boat_data.h"
+#include "core/logging.h"
+
+#include "msg/boat_msg.pb.h"
 
 class BoatServer
 {
 public:
-    BoatServer() {}
+    BoatServer(BoatState *state) : state_(state) {}
     ~BoatServer() {}
 
     bool Init();
     bool Start();
+    bool Update();
 
 private:
     crow::SimpleApp app_;
+
+    crow::websocket::connection *conn_;
+
+    BoatState *const state_;
 };
