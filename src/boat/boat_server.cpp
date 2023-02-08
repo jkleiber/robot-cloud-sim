@@ -12,20 +12,21 @@ bool BoatServer::Init()
             return page.render(ctx);
         });
 
-    CROW_ROUTE(app_, "/boat/ws")
+    CROW_ROUTE(app_, "/boat_ui/ws")
         .websocket()
         .onopen(
             [&](crow::websocket::connection &conn)
             {
-                //
                 CROW_LOG_INFO << "new websocket connection";
-                conn_ = &conn;
+                std::lock_guard<std::mutex> _(mtx_);
+                conns_.insert(&conn);
             })
         .onclose(
             [&](crow::websocket::connection &conn, const std::string &reason)
             {
                 CROW_LOG_INFO << "websocket connection closed: " << reason;
-                conn_ = nullptr;
+                std::lock_guard<std::mutex> _(mtx_);
+                conns_.erase(&conn);
             })
         .onmessage([&](crow::websocket::connection &conn,
                        const std::string &data, bool is_binary)
@@ -53,60 +54,45 @@ bool BoatServer::Start()
 
 bool BoatServer::Update(double t)
 {
-    std::cout << "A\n";
-    VERIFY(state_ != nullptr);
-    std::cout << "B\n";
-    // If the connection is nullptr, return early and don't send anything.
-    if (conn_ == nullptr)
+    // Maintain a specific update rate to the GUI
+    double delta_send = t - prev_send_t_;
+    if (delta_send >= (1 / WEBSOCKET_UPDATE_RATE))
     {
-        std::cout << "No connection!\n";
-        return true;
+        VERIFY(SendWebsocketData(t));
     }
-    std::cout << "C\n";
 
-    // Create a BoatMessage protobuf
-    msg::BoatMessage msg;
-    msg::BoatMessage::BoatState boat_state;
+    return true;
+}
 
-    std::cout << "D\n";
-    msg.set_t(t);
+bool BoatServer::SendWebsocketData(double t)
+{
+    VERIFY(state_ != nullptr);
 
-    boat_state.set_lat(state_->lat);
-    boat_state.set_lon(state_->lon);
-    boat_state.set_yaw(state_->yaw);
-    std::cout << "E\n";
+    // Broadcast data to all websocket connections
+    for (auto c : conns_)
+    {
+        // If the connection is nullptr, return early and don't send anything.
+        if (c == nullptr)
+        {
+            conns_.erase(c);
+            continue;
+        }
 
-    msg.set_allocated_state(&boat_state);
-    std::cout << "F\n";
-    std::cout << "Sent " << msg.SerializeAsString() << std::endl;
-    std::cout << conn_->get_remote_ip() << std::endl;
-    conn_->send_binary(msg.SerializeAsString());
-    std::cout << "G\n";
+        // Create a BoatMessage protobuf
+        msg::BoatMessage web_data;
 
-    // Encode a RapidJSON message to send to the web UI
-    // rapidjson::StringBuffer out_buffer;
-    // rapidjson::Writer<rapidjson::StringBuffer> writer(out_buffer);
+        // Set the time and state for the system.
+        web_data.set_t(t);
+        web_data.mutable_state()->set_lat(state_->lat);
+        web_data.mutable_state()->set_lon(state_->lon);
+        web_data.mutable_state()->set_yaw(state_->yaw);
 
-    // std::string lat_str =
+        // Send the data as a binary packet.
+        c->send_binary(web_data.SerializeAsString());
+    }
 
-    // writer.StartObject();
-
-    // writer.Key("boat_info");
-    // writer.StartObject();
-    // writer.Key("lat");
-    // writer.String(.c_str());
-    // writer.Key("lon");
-    // writer.String(right_str.c_str());
-    // writer.EndObject();
-
-    // writer.EndObject();
-
-    // Write
-    // std::string out_str = out_buffer.GetString();
-    // out_str += "\n";
-
-    //
-    // conn_->send_text()
+    // Update the previous send time.
+    prev_send_t_ = t;
 
     return true;
 }

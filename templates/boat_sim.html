@@ -12,36 +12,36 @@
 </body>
 
 <script>
-    let socket = new WebSocket("ws://localhost:4001/boat/ws");
+    let socket = new WebSocket("ws://localhost:4001/boat_ui/ws");
     socket.binaryType = 'arraybuffer'
+
+    var boat_msg_root = null;
+    var BoatMessage = null;
+    protobuf.load("/static/msg/boat_msg.proto", function (err, root) {
+        if (err) {
+            throw err;
+        }
+        boat_msg_root = root;
+        BoatMessage = boat_msg_root.lookupType("BoatMessage");
+    });
 
     socket.onopen = function (e) {
         console.log("[open] Connection established");
-        console.log("Sending to server");
-        socket.send("My name is John");
     };
 
     socket.onmessage = function (event) {
-        var msg_p = document.getElementById("message");
-        // msg_p.innerHTML = event.data;
-        // I retrieve the Base64 Encoded string
-        msg = event.data
-        console.log("Received: " + msg)
-        // I transform such string to the typed array needed
-        buffer = Uint8Array.from(atob(msg), c => c.charCodeAt(0))
+        // Take the data from the event string
+        var msg = event.data
 
-        // Initiate the Protobuf library by opening the .proto file
-        protobuf.load("/static/msg/boat_msg.proto", function (err, root) {
+        // Create a buffer from the message data
+        var buffer = new Uint8Array(msg)
 
-            // Retrieve the type of message I want to decode from the .proto file
-            var BoatMessage = root.lookupType("BoatMessage");
+        // Decode the message
+        var message = BoatMessage.decode(buffer);
 
-            // Finally I can decode my message
-            var message = BoatMessage.decode(buffer);
-
-            // message now contains an object with the properties specified in the .proto file
-            console.log(message)
-        });
+        // Update the UI display
+        console.log(message);
+        updateDisplay(message);
     };
 
     socket.onclose = function (event) {
@@ -57,6 +57,19 @@
     socket.onerror = function (error) {
         console.log(`[error] ${error.data}`);
     };
+
+    function updateDisplay(message) {
+        var msg_p = document.getElementById("message");
+
+        // Parse the message
+        var t = message.t;
+        var lat = message.state.lat;
+        var lon = message.state.lon;
+        var yaw = message.state.yaw;
+
+        var msg_data_str = "t: " + t + "<br>lat: " + lat + "<br>lon: " + lon + "<br>yaw: " + yaw;
+        msg_p.innerHTML = msg_data_str;
+    }
 </script>
 
 </html>

@@ -4,8 +4,8 @@
 bool BoatSimulator::Init()
 {
     // TODO: make configurable
-    t_ = 0;
-    boat_data_.sim_info.dt = 0.01;
+    t_ = 0.0;
+    boat_data_.sim_info.dt = 5e-8; // 1e-7 is approx. 10x real time.
 
     // Initialize server
     server_ = std::make_shared<BoatServer>(&boat_data_.state);
@@ -25,21 +25,33 @@ bool BoatSimulator::Run()
     VERIFY(boat_sys_ != nullptr);
 
     // Start up the server
-    std::cout << "YEEE\n";
     VERIFY(server_->Start());
-    std::cout << "YEET\n";
+
+    // t_ = 0.0;
 
     // Run the dynamics
     while (true)
     {
-        std::cout << "YEEE\n";
         // VERIFY(boat_sys_->Update())
         VERIFY(server_->Update(t_));
 
-        std::cout << t_ << " sec\n";
-
         // Update the time
         t_ += boat_data_.sim_info.dt;
+
+        // Print the status every second (in sim time).
+        // Note: adding this print slows the simulation down enough for the
+        // websockets to work well. The print rate and the dt of the simulation
+        // are related to the user experience in terms of timing.
+        //
+        // As the simulator becomes more complex, this may need to be adjusted
+        // in order to maintain approximately 10x speed performance in the sim.
+        // A better way to do this would be to maintain tighter control on the
+        // loop timing, but this is difficult to do across operating systems.
+        if ((t_ - prev_print_t_) > (1 / PRINT_RATE))
+        {
+            std ::cout << "t=" << t_ << std::endl;
+            prev_print_t_ = t_;
+        }
     }
 
     return true;

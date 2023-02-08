@@ -4,6 +4,7 @@
 #include <eigen3/Eigen/Dense>
 
 #include "boat/boat_data.h"
+#include "core/logging.h"
 
 class BoatDynamics
 {

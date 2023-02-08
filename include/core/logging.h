@@ -8,7 +8,7 @@
 #define VERIFY(check)                                                          \
     if (!(check))                                                              \
     {                                                                          \
-        std::cout << "[" << __FILE__ << ":" << __LINE__ << "VERIFY(" << #check \
-                  << ")\n";                                                    \
+        std::cout << "[" << __FILE__ << ":" << __LINE__ << "] VERIFY("         \
+                  << #check << ")\n";                                          \
         return false;                                                          \
     }

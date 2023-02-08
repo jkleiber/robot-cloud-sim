@@ -1,7 +1,17 @@
 
 #include "boat/boat_dynamics.h"
 
-bool BoatDynamics::Init() { return true; }
+bool BoatDynamics::Init()
+{
+    VERIFY(state_ != nullptr);
+
+    // TODO: make this configurable
+    state_->lat = 0.0;
+    state_->lon = 0.0;
+    state_->yaw = 0.0;
+
+    return true;
+}
 
 bool BoatDynamics::Update(Eigen::VectorXd u)
 {
