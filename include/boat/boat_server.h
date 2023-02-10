@@ -5,8 +5,6 @@
 #include <mutex>
 #include <unordered_set>
 
-#include <asio/io_service.hpp>
-#include <asio/ip/tcp.hpp>
 #include <crow.h>
 #include <crow/websocket.h>
 #include <rapidjson/document.h>
@@ -16,7 +14,6 @@
 
 #include "boat/boat_data.h"
 #include "core/logging.h"
-#include "core/tcp_manager.h"
 #include "msg/boat_msg.pb.h"
 
 // TODO: make this configurable.
@@ -27,11 +24,7 @@
 class BoatServer
 {
 public:
-    BoatServer(BoatState *state)
-        : state_(state),
-          tcp_(io_, ::asio::ip::tcp::endpoint(::asio::ip::tcp::v4(), 9002))
-    {
-    }
+    BoatServer(BoatState *state) : state_(state) {}
     ~BoatServer() {}
 
     bool Init();
@@ -44,8 +37,7 @@ private:
     std::future<void> app_result_;
 
     // External TCP connection management
-    ::asio::io_context io_;
-    TCPManager tcp_;
+    // TODO
 
     // Manage Crow connections over websocket
     std::mutex mtx_;

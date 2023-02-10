@@ -44,9 +44,6 @@ bool BoatServer::Init()
             return page.render(ctx);
         });
 
-    // Run the I/O service in a thread to avoid blocking everything else.
-    std::thread run_thread([&] { io_.run(); });
-
     return true;
 }
 

@@ -13,13 +13,13 @@ add_library(cloud_sim_core ${SOURCE_LIST} ${HEADER_LIST})
 set_target_properties(cloud_sim_core PROPERTIES LINKER_LANGUAGE CXX)
 
 # Find required packages.
-find_package(asio CONFIG REQUIRED)
-
 # find_package(Crow CONFIG REQUIRED)
 # find_package(Eigen3 CONFIG REQUIRED)
 
 # Target all library dependencies
-target_link_libraries(cloud_sim_core PUBLIC asio::asio)
+target_link_libraries(cloud_sim_core
+    PUBLIC
+)
 
 # Target the include folder
 target_include_directories(cloud_sim_core PUBLIC ../../include)
