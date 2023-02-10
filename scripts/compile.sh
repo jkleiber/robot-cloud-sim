@@ -38,12 +38,12 @@ fi
 
 # Copy the protobuf messages to the binary location, exit on failure
 cd $APP_DIR
-rm -rf $APP_DIR/templates/msg
-cp -R $PROTO_DIR/*.proto $TEMPLATES_WD/msg 
+mkdir -p $APP_DIR/static/msg/ 
+cp -R $PROTO_DIR/*.proto $APP_DIR/static/msg/ 
 if [ $? -ne 0 ]
 then
     echo "Error: Failed to copy protocols"
-    exit 3
+    exit 4
 fi
 
 # Copy the current configuration to the binary location, exit on failure
