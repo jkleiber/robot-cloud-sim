@@ -3,6 +3,7 @@
 
 bool BoatServer::Init()
 {
+    // Serve the main UI on the root page.
     CROW_ROUTE(app_, "/")
     (
         []()
@@ -12,6 +13,7 @@ bool BoatServer::Init()
             return page.render(ctx);
         });
 
+    // Websocket route for UI
     CROW_ROUTE(app_, "/boat_ui/ws")
         .websocket()
         .onopen(
@@ -32,6 +34,7 @@ bool BoatServer::Init()
                        const std::string &data, bool is_binary)
                    { std::cout << "Received message: " << data << "\n"; });
 
+    // Arbitrary non-static files can be accessed at this route
     CROW_ROUTE(app_, "/b/<path>")
     (
         [](std::string path)
@@ -41,13 +44,16 @@ bool BoatServer::Init()
             return page.render(ctx);
         });
 
+    // Run the I/O service in a thread to avoid blocking everything else.
+    std::thread run_thread([&] { io_.run(); });
+
     return true;
 }
 
 bool BoatServer::Start()
 {
     // Start the server
-    app_result_ = app_.port(4001).multithreaded().run_async();
+    app_result_ = app_.port(9001).multithreaded().run_async();
 
     return true;
 }

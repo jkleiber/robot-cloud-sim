@@ -3,7 +3,10 @@
     "version-string": "0.1.0",
     "dependencies": [
         "eigen3",
-        "asio",
+        {
+            "name": "asio",
+            "default-features": false
+        },
         "crow",
         "rapidjson",
         "protobuf"
