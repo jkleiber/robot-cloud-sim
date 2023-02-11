@@ -11,4 +11,5 @@ message BoatMessage {
 
     optional double t = 1;
     optional BoatState state = 2;
+    optional string name = 3;
 }

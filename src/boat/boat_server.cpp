@@ -44,8 +44,12 @@ bool BoatServer::Init()
             return page.render(ctx);
         });
 
-    // Set up an RPC manager for managing the RPCs to/from the user.
-    VERIFY(user_rpc_.Init());
+    // RPC setup
+    // Build the service callback
+    boat_srv_cb_ = std::make_shared<BoatServiceCb>(&boat_name_);
+
+    // Build the RPC manager from the service.
+    rpc_ = std::make_shared<RpcManager<BoatServiceCb>>(boat_srv_cb_);
 
     return true;
 }
@@ -54,9 +58,6 @@ bool BoatServer::Start()
 {
     // Start the server
     app_result_ = app_.port(9001).multithreaded().run_async();
-
-    // Run the RPC manager asynchronously
-    VERIFY(user_rpc_.AsyncRun());
 
     return true;
 }
@@ -69,6 +70,17 @@ bool BoatServer::Update(double t)
     {
         VERIFY(SendWebsocketData(t));
     }
+
+    return true;
+}
+
+bool BoatServer::RunRpc()
+{
+    // Set up the RPC manager for managing the RPCs to/from the user.
+    VERIFY(rpc_->Init());
+
+    // Run the synchronous RPC server.
+    VERIFY(rpc_->Run());
 
     return true;
 }
@@ -95,6 +107,7 @@ bool BoatServer::SendWebsocketData(double t)
         web_data.mutable_state()->set_lat(state_->lat);
         web_data.mutable_state()->set_lon(state_->lon);
         web_data.mutable_state()->set_yaw(state_->yaw);
+        web_data.set_name(boat_name_);
 
         // Send the data as a binary packet.
         c->send_binary(web_data.SerializeAsString());

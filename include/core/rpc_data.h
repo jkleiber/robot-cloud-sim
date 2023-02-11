@@ -11,13 +11,13 @@ using grpc::ServerContext;
 using grpc::Status;
 
 // Class encompasing the state and logic needed to serve a request.
-template <class T, class U, class V> class RPCData
+template <class T, class U, class V> class RpcData
 {
 public:
     // Take in the "service" instance (in this case representing an asynchronous
     // server) and the completion queue "cq" used for asynchronous communication
     // with the gRPC runtime.
-    RPCData(T *service, ServerCompletionQueue *cq)
+    RpcData(T *service, ServerCompletionQueue *cq)
         : service_(service), cq_(cq), responder_(&ctx_), status_(CREATE)
     {
         // Invoke the serving logic right away.

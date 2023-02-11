@@ -106,6 +106,13 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "cfenv": "cpp",
+        "csetjmp": "cpp",
+        "cuchar": "cpp",
+        "*.tcc": "cpp",
+        "string_view": "cpp",
+        "rope": "cpp",
+        "slist": "cpp"
     }
 }

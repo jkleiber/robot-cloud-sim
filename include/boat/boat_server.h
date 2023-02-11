@@ -3,7 +3,9 @@
 
 #include <memory>
 #include <mutex>
+#include <string.h>
 #include <unordered_set>
+
 
 #include <crow.h>
 #include <crow/websocket.h>
@@ -33,13 +35,18 @@ public:
     bool Start();
     bool Update(double t);
 
+    // This should be run in another thread in order to allow the rest of the
+    // program to run.
+    bool RunRpc();
+
 private:
     // Crow app
     crow::SimpleApp app_;
     std::future<void> app_result_;
 
     // External TCP connection management
-    RpcManager<BoatServiceCb> user_rpc_;
+    std::shared_ptr<BoatServiceCb> boat_srv_cb_;
+    std::shared_ptr<RpcManager<BoatServiceCb>> rpc_;
 
     // Manage Crow connections over websocket
     std::mutex mtx_;
@@ -50,6 +57,7 @@ private:
 
     // Boat state
     BoatState *const state_;
+    std::string boat_name_;
 
     bool SendWebsocketData(double t);
 };

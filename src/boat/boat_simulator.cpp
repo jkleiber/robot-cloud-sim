@@ -28,6 +28,8 @@ bool BoatSimulator::Run()
     VERIFY(server_->Start());
 
     // t_ = 0.0;
+    // Run the RPC management in a separate thread.
+    std::thread rpc_thread(&BoatServer::RunRpc, server_.get());
 
     // Run the dynamics
     while (true)
@@ -53,6 +55,8 @@ bool BoatSimulator::Run()
             prev_print_t_ = t_;
         }
     }
+
+    rpc_thread.join();
 
     return true;
 }

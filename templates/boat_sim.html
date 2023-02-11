@@ -12,7 +12,7 @@
 </body>
 
 <script>
-    let socket = new WebSocket("ws://localhost:4001/boat_ui/ws");
+    let socket = new WebSocket("ws://localhost:9001/boat_ui/ws");
     socket.binaryType = 'arraybuffer'
 
     var boat_msg_root = null;
@@ -63,11 +63,12 @@
 
         // Parse the message
         var t = message.t;
+        var name = message.name;
         var lat = message.state.lat;
         var lon = message.state.lon;
         var yaw = message.state.yaw;
 
-        var msg_data_str = "t: " + t + "<br>lat: " + lat + "<br>lon: " + lon + "<br>yaw: " + yaw;
+        var msg_data_str = "t: " + t + "<br>Boat Name: " + name + "<br>lat: " + lat + "<br>lon: " + lon + "<br>yaw: " + yaw;
         msg_p.innerHTML = msg_data_str;
     }
 </script>
