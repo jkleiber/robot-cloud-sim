@@ -13,7 +13,9 @@
 #include <string.h>
 
 #include "boat/boat_data.h"
+#include "boat/boat_rpc_callback.h"
 #include "core/logging.h"
+#include "core/rpc_manager.h"
 #include "msg/boat_msg.pb.h"
 
 // TODO: make this configurable.
@@ -37,7 +39,7 @@ private:
     std::future<void> app_result_;
 
     // External TCP connection management
-    // TODO
+    RpcManager<BoatServiceCb> user_rpc_;
 
     // Manage Crow connections over websocket
     std::mutex mtx_;

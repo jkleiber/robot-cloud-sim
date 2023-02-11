@@ -20,8 +20,9 @@ find_package(Crow CONFIG REQUIRED)
 find_package(Eigen3 CONFIG REQUIRED)
 find_package(RapidJSON CONFIG REQUIRED)
 find_package(Protobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
 
-message(STATUS "foo include dir: ${Protobuf_LIBRARIES}")
+# message(STATUS "foo include dir: ${Protobuf_LIBRARIES}")
 
 # Target all library dependencies
 target_link_libraries(cloud_sim_boat
@@ -33,10 +34,12 @@ target_link_libraries(cloud_sim_boat
     protobuf::libprotobuf
     protobuf::libprotobuf-lite
     cloud_sim_msg
+    gRPC::grpc++
+    gRPC::grpc++_reflection
 )
 
 # Target the include folder
-target_include_directories(cloud_sim_boat PUBLIC ../../include ${Protobuf_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}/src/gen)
+target_include_directories(cloud_sim_boat PUBLIC ../../include ${Protobuf_INCLUDE_DIRS} ${CMAKE_BINARY_DIR}/src)
 
 # All users of this library will need at least C++17
 target_compile_features(cloud_sim_boat PUBLIC cxx_std_17)

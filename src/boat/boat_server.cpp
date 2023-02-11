@@ -44,6 +44,9 @@ bool BoatServer::Init()
             return page.render(ctx);
         });
 
+    // Set up an RPC manager for managing the RPCs to/from the user.
+    VERIFY(user_rpc_.Init());
+
     return true;
 }
 
@@ -51,6 +54,9 @@ bool BoatServer::Start()
 {
     // Start the server
     app_result_ = app_.port(9001).multithreaded().run_async();
+
+    // Run the RPC manager asynchronously
+    VERIFY(user_rpc_.AsyncRun());
 
     return true;
 }
