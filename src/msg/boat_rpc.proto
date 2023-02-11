@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package msg;
 
+import "boat_msg.proto";
 
 // The boat service definition.
 service BoatService {
@@ -9,6 +10,8 @@ service BoatService {
     rpc SayHello (BoatRequest) returns (BoatResponse) {}
 
     rpc SayHelloStreamReply (BoatRequest) returns (stream BoatResponse) {}
+
+    rpc ControlBoat (BoatControl) returns (BoatState) {}
 }
   
 // The request message containing the user's name.
@@ -20,4 +23,4 @@ message BoatRequest {
 message BoatResponse {
     string message = 1;
 }
-  
+

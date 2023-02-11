@@ -6,7 +6,6 @@
 #include <string.h>
 #include <unordered_set>
 
-
 #include <crow.h>
 #include <crow/websocket.h>
 #include <rapidjson/document.h>
@@ -28,7 +27,9 @@
 class BoatServer
 {
 public:
-    BoatServer(BoatState *state) : state_(state) {}
+    BoatServer(BoatState *state, BoatControl *ctrl) : state_(state), ctrl_(ctrl)
+    {
+    }
     ~BoatServer() {}
 
     bool Init();
@@ -57,6 +58,7 @@ private:
 
     // Boat state
     BoatState *const state_;
+    BoatControl *const ctrl_;
     std::string boat_name_;
 
     bool SendWebsocketData(double t);

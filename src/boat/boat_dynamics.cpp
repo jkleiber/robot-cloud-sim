@@ -13,7 +13,7 @@ bool BoatDynamics::Init()
     return true;
 }
 
-bool BoatDynamics::Update(Eigen::VectorXd u)
+bool BoatDynamics::Update()
 {
     // x_dot = Ax + Bu
     // Eigen::VectorXd x_dot = Eigen::VectorXd::Zero;

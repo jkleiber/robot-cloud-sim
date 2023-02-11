@@ -9,15 +9,19 @@
 class BoatDynamics
 {
 public:
-    BoatDynamics(BoatState *state, const double &dt) : state_(state) {}
+    BoatDynamics(BoatState *state, BoatControl *ctrl, const double &dt)
+        : state_(state), ctrl_(ctrl)
+    {
+    }
     ~BoatDynamics() {}
 
     bool Init();
 
-    bool Update(Eigen::VectorXd u);
+    bool Update();
 
 private:
     BoatState *const state_;
+    BoatControl *const ctrl_;
     double dt_;
 
     Eigen::VectorXd x_;

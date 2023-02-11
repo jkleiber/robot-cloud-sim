@@ -7,8 +7,10 @@
 </head>
 
 <body>
-    <h1>Messages</h1>
-    <p id="message"></p>
+    <h1>Boat State</h1>
+    <p id="b-state-view"></p>
+    <h1>Boat Control</h1>
+    <p id="b-control-view"></p>
 </body>
 
 <script>
@@ -40,7 +42,6 @@
         var message = BoatMessage.decode(buffer);
 
         // Update the UI display
-        console.log(message);
         updateDisplay(message);
     };
 
@@ -59,7 +60,15 @@
     };
 
     function updateDisplay(message) {
-        var msg_p = document.getElementById("message");
+        // Update the boat state.
+        updateBoatStateView(message);
+
+        // Update control inputs.
+        updateControlView(message);
+    }
+
+    function updateBoatStateView(message) {
+        var boat_state_view = document.getElementById("b-state-view");
 
         // Parse the message
         var t = message.t;
@@ -69,7 +78,17 @@
         var yaw = message.state.yaw;
 
         var msg_data_str = "t: " + t + "<br>Boat Name: " + name + "<br>lat: " + lat + "<br>lon: " + lon + "<br>yaw: " + yaw;
-        msg_p.innerHTML = msg_data_str;
+        boat_state_view.innerHTML = msg_data_str;
+    }
+
+    function updateControlView(message) {
+        var boat_ctrl_view = document.getElementById("b-control-view");
+
+        var power = message.ctrl.power;
+        var rudder = message.ctrl.rudder;
+
+        var msg_str = "Power: " + power + "<br>Rudder: " + rudder;
+        boat_ctrl_view.innerHTML = msg_str;
     }
 </script>
 

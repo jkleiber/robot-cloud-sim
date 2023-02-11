@@ -8,12 +8,12 @@ bool BoatSimulator::Init()
     boat_data_.sim_info.dt = 5e-8; // 1e-7 is approx. 10x real time.
 
     // Initialize server
-    server_ = std::make_shared<BoatServer>(&boat_data_.state);
+    server_ = std::make_shared<BoatServer>(&boat_data_.state, &boat_data_.ctrl);
     VERIFY(server_->Init());
 
     // Initialize boat dynamics
-    boat_sys_ = std::make_shared<BoatDynamics>(&boat_data_.state,
-                                               boat_data_.sim_info.dt);
+    boat_sys_ = std::make_shared<BoatDynamics>(
+        &boat_data_.state, &boat_data_.ctrl, boat_data_.sim_info.dt);
     VERIFY(boat_sys_->Init());
 
     return true;

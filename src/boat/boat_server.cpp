@@ -46,7 +46,7 @@ bool BoatServer::Init()
 
     // RPC setup
     // Build the service callback
-    boat_srv_cb_ = std::make_shared<BoatServiceCb>(&boat_name_);
+    boat_srv_cb_ = std::make_shared<BoatServiceCb>(&boat_name_, ctrl_, *state_);
 
     // Build the RPC manager from the service.
     rpc_ = std::make_shared<RpcManager<BoatServiceCb>>(boat_srv_cb_);
@@ -88,6 +88,7 @@ bool BoatServer::RunRpc()
 bool BoatServer::SendWebsocketData(double t)
 {
     VERIFY(state_ != nullptr);
+    VERIFY(ctrl_ != nullptr);
 
     // Broadcast data to all websocket connections
     for (auto c : conns_)
@@ -108,6 +109,8 @@ bool BoatServer::SendWebsocketData(double t)
         web_data.mutable_state()->set_lon(state_->lon);
         web_data.mutable_state()->set_yaw(state_->yaw);
         web_data.set_name(boat_name_);
+        web_data.mutable_ctrl()->set_power(ctrl_->power);
+        web_data.mutable_ctrl()->set_rudder(ctrl_->rudder);
 
         // Send the data as a binary packet.
         c->send_binary(web_data.SerializeAsString());
