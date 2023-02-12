@@ -3,9 +3,8 @@ import time
 import numpy as np
 
 import grpc
-from protos.boat_msg_pb2 import BoatControl, BoatState
-from protos.boat_rpc_pb2 import BoatRequest
-from protos.boat_rpc_pb2_grpc import BoatServiceStub
+from protos.boat_msg_pb2 import BoatControl, BoatState, BoatRequest
+from protos.boat_msg_pb2_grpc import BoatServiceStub
 
 
 def run():

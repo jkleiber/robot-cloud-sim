@@ -20,7 +20,9 @@ find_package(gRPC CONFIG REQUIRED)
 # Target all library dependencies
 target_link_libraries(cloud_sim_core
     PUBLIC
+    gRPC::grpc
     gRPC::grpc++
+    gRPC::grpc++_reflection
 )
 
 # Target the include folder

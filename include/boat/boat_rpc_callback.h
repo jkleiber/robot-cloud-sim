@@ -7,7 +7,7 @@
 #include <grpcpp/health_check_service_interface.h>
 
 #include "boat/boat_data.h"
-#include "msg/boat_rpc.grpc.pb.h"
+#include "boat/boat_msg.grpc.pb.h"
 
 using grpc::CallbackServerContext;
 using grpc::ServerUnaryReactor;

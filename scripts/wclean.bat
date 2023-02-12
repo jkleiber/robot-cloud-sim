@@ -2,17 +2,24 @@
 
 :: Find clean script working directory
 cd %~dp0
-set COMPILE_WD="..\build"
-set APPS_WD="..\build\apps"
+set SRC_DIR="..\build\src"
+set CMAKE_DIR="..\build\CMakeFiles"
+set APPS_DIR="..\build\apps"
 
-:: Change to the build directory
-cd %COMPILE_WD%
+:: Clean temporary CMakeFiles
+cd %CMAKE_DIR%
 
 :: Remove all files ignored by git (compile scripts, etc.)
 git clean -dfX
 
-:: Go one layer deeper, into apps/
-cd %APPS_WD%
+:: Clean the sources
+cd %SRC_DIR%
+
+:: Remove all files ignored by git (compile scripts, etc.)
+git clean -dfX
+
+:: Clean apps
+cd %APPS_DIR%
 
 :: Remove all files ignored by git (compile scripts, etc.)
 git clean -dfX

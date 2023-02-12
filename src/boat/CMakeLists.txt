@@ -8,34 +8,46 @@ file(GLOB SOURCE_LIST
     CONFIGURE_DEPENDS
     "${RobotCloudSim_SOURCE_DIR}/src/boat/*.cpp")
 
+# Generate protobuf messages
+file(GLOB PROTO_LIST
+    CONFIGURE_DEPENDS
+    "${RobotCloudSim_SOURCE_DIR}/src/boat/*.proto")
+
+# We need protobuf and gRPC to generate the protobuf messages for communication.
+find_package(Protobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
+
+# Generate protobuf for the C++ code
+protobuf_generate_cpp(PROTO_SRC PROTO_HEADER ${PROTO_LIST}) # PLUGIN protoc-gen-grpc=${GRPC_CPP_PLUGIN_PATH})
+
+# Generate gRPC stuff specifically
+get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
+protobuf_generate(PROTOS ${PROTO_LIST} OUT_VAR GRPC_PROTO_SRCS LANGUAGE grpc GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}")
+
 list(APPEND SOURCE_LIST ${PROTO_SRC})
 list(APPEND HEADER_LIST ${PROTO_HEADER})
 
 # Create the control simulation library
-add_library(cloud_sim_boat ${SOURCE_LIST} ${HEADER_LIST})
+add_library(cloud_sim_boat ${SOURCE_LIST} ${HEADER_LIST} ${GRPC_PROTO_SRCS})
 set_target_properties(cloud_sim_boat PROPERTIES LINKER_LANGUAGE CXX)
 
 # Find required packages.
 find_package(Crow CONFIG REQUIRED)
 find_package(Eigen3 CONFIG REQUIRED)
-find_package(RapidJSON CONFIG REQUIRED)
-find_package(Protobuf CONFIG REQUIRED)
-find_package(gRPC CONFIG REQUIRED)
 
 # message(STATUS "foo include dir: ${Protobuf_LIBRARIES}")
 
 # Target all library dependencies
 target_link_libraries(cloud_sim_boat
     PUBLIC
+    cloud_sim_core
     Eigen3::Eigen
     Crow::Crow
-    rapidjson
     protobuf::libprotoc
     protobuf::libprotobuf
     protobuf::libprotobuf-lite
-    cloud_sim_msg
+    gRPC::grpc
     gRPC::grpc++
-    gRPC::grpc++_reflection
 )
 
 # Target the include folder

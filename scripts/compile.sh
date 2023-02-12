@@ -38,8 +38,8 @@ fi
 
 # Copy the protobuf messages to the binary location, exit on failure
 cd $APP_DIR
-mkdir -p $APP_DIR/static/msg/ 
-cp -R $PROTO_DIR/*.proto $APP_DIR/static/msg/ 
+mkdir -p $APP_DIR/static/boat/ 
+cp -R $PROTO_DIR/*.proto $APP_DIR/static/boat/ 
 if [ $? -ne 0 ]
 then
     echo "Error: Failed to copy protocols"

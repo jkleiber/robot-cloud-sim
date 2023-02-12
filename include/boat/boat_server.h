@@ -8,16 +8,13 @@
 
 #include <crow.h>
 #include <crow/websocket.h>
-#include <rapidjson/document.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/writer.h>
 #include <string.h>
 
 #include "boat/boat_data.h"
+#include "boat/boat_msg.pb.h"
 #include "boat/boat_rpc_callback.h"
 #include "core/logging.h"
 #include "core/rpc_manager.h"
-#include "msg/boat_msg.pb.h"
 
 // TODO: make this configurable.
 #define WEBSOCKET_UPDATE_RATE 0.5f // Hz
