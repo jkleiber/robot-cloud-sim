@@ -58,6 +58,21 @@ public:
         return reactor;
     }
 
+    ServerUnaryReactor *GetState(CallbackServerContext *context,
+                                 const msg::BoatRequest *req,
+                                 msg::BoatState *state) override
+    {
+        // Respond with the current boat state.
+        state->set_t(t_);
+        state->set_lat(state_.lat);
+        state->set_lon(state_.lon);
+        state->set_yaw(state_.yaw);
+
+        ServerUnaryReactor *reactor = context->DefaultReactor();
+        reactor->Finish(grpc::Status::OK);
+        return reactor;
+    }
+
 private:
     std::string *const name_ = nullptr;
 

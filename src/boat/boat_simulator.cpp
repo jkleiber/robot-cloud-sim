@@ -3,9 +3,9 @@
 
 bool BoatSimulator::Init()
 {
-    // TODO: make configurable
+    // TODO: make dt configurable
     t_ = 0.0;
-    boat_data_.sim_info.dt = 5e-8; // 1e-7 is approx. 10x real time.
+    boat_data_.sim_info.dt = 5e-5; // 1e-7 is approx. 10x real time.
 
     // Initialize server
     server_ = std::make_shared<BoatServer>(&boat_data_.state, &boat_data_.ctrl);
@@ -34,7 +34,7 @@ bool BoatSimulator::Run()
     // Run the dynamics
     while (true)
     {
-        // VERIFY(boat_sys_->Update())
+        VERIFY(boat_sys_->Update());
         VERIFY(server_->Update(t_));
 
         // Update the time

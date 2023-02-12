@@ -7,10 +7,15 @@ message BoatState {
     optional double lat = 2;
     optional double lon = 3;
     optional double yaw = 4;
+    optional double speed = 5;
+    optional double prop_rpm = 6;
 }
 
 message BoatControl {
+    // Motor output power from [0, 1]
     optional double power = 1;
+
+    // Rudder in degrees from [-20, 20]
     optional double rudder = 2;
 }
 
@@ -33,6 +38,8 @@ service BoatService {
     rpc SayHelloStreamReply (BoatRequest) returns (stream BoatResponse) {}
 
     rpc ControlBoat (BoatControl) returns (BoatState) {}
+
+    rpc GetState (BoatRequest) returns (BoatState) {}
 }
   
 // The request message containing the boat's name.
