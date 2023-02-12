@@ -3,19 +3,24 @@ syntax = "proto3";
 package msg;
 
 message BoatState {
-    optional double lat = 1;
-    optional double lon = 2;
-    optional double yaw = 3;
+    optional double t = 1;
+    optional double lat = 2;
+    optional double lon = 3;
+    optional double yaw = 4;
 }
 
 message BoatControl {
-    double power = 1;
-    double rudder = 2;
+    optional double power = 1;
+    optional double rudder = 2;
+}
+
+message BoatInfo {
+    optional string name = 1;
 }
 
 message BoatMessage {
     optional double t = 1;
-    optional BoatState state = 2;
-    optional string name = 3;
+    optional BoatInfo info = 2;
+    optional BoatState state = 3;
     optional BoatControl ctrl = 4;
 }

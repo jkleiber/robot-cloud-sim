@@ -57,6 +57,7 @@ private:
     double prev_send_t_ = -100;
 
     // Boat state
+    double t_ = 0;
     BoatState *const state_;
     BoatControl *const ctrl_;
     std::string boat_name_;

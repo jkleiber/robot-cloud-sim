@@ -13,6 +13,11 @@ typedef struct boat_sim_info_t
     double dt;
 } BoatSimInfo;
 
+typedef struct boat_info_t
+{
+    std::string name = "";
+} BoatInfo;
+
 typedef struct boat_ctrl_t
 {
     double power = 0.0;

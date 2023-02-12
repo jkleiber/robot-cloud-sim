@@ -15,9 +15,9 @@ using grpc::ServerUnaryReactor;
 class BoatServiceCb final : public msg::BoatService::CallbackService
 {
 public:
-    BoatServiceCb(std::string *name, BoatControl *boat_ctrl,
+    BoatServiceCb(std::string *name, BoatControl *boat_ctrl, const double &t,
                   const BoatState &boat_state)
-        : name_(name), ctrl_(boat_ctrl), state_(boat_state)
+        : name_(name), ctrl_(boat_ctrl), t_(t), state_(boat_state)
     {
     }
 
@@ -48,6 +48,7 @@ public:
         ctrl_->rudder = ctrl->rudder();
 
         // Respond with the current boat state.
+        state->set_t(t_);
         state->set_lat(state_.lat);
         state->set_lon(state_.lon);
         state->set_yaw(state_.yaw);
@@ -62,4 +63,5 @@ private:
 
     BoatControl *const ctrl_;
     const BoatState &state_;
+    const double &t_;
 };

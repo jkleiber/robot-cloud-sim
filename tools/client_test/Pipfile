@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 grpcio = "*"
 grpcio-tools = "*"
+numpy = "*"
 
 [dev-packages]
 

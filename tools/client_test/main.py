@@ -1,6 +1,9 @@
 
+import time
+import numpy as np
+
 import grpc
-from protos.boat_msg_pb2 import BoatControl
+from protos.boat_msg_pb2 import BoatControl, BoatState
 from protos.boat_rpc_pb2 import BoatRequest
 from protos.boat_rpc_pb2_grpc import BoatServiceStub
 
@@ -13,7 +16,24 @@ def run():
         response = stub.SayHello(BoatRequest(name="boaty_mcboatface"))
         print("Greeter client received: " + response.message)
 
-        state = stub.ControlBoat(BoatControl(power=1.0, rudder=0.0))
+        # Determine how fast gRPC can go
+        start_time = -1
+        times = []
+        for i in range(100):
+            state = stub.ControlBoat(BoatControl(power=1.0, rudder=0.0))
+            if start_time < 0:
+                start_time = state.t
+            else:
+                elapsed_time = state.t - start_time
+                times.append(elapsed_time)
+                start_time = state.t
+            print(state.t)
+
+        # Report average time
+        avg_time = np.average(times)
+        min_time = np.min(times)
+        max_time = np.max(times)
+        print(f"Average time: {avg_time}\nMin: {min_time}\nMax: {max_time}")
 
 
 if __name__ == "__main__":

@@ -46,7 +46,8 @@ bool BoatServer::Init()
 
     // RPC setup
     // Build the service callback
-    boat_srv_cb_ = std::make_shared<BoatServiceCb>(&boat_name_, ctrl_, *state_);
+    boat_srv_cb_ =
+        std::make_shared<BoatServiceCb>(&boat_name_, ctrl_, t_, *state_);
 
     // Build the RPC manager from the service.
     rpc_ = std::make_shared<RpcManager<BoatServiceCb>>(boat_srv_cb_);
@@ -64,6 +65,9 @@ bool BoatServer::Start()
 
 bool BoatServer::Update(double t)
 {
+    // Update the server time.
+    t_ = t;
+
     // Maintain a specific update rate to the GUI
     double delta_send = t - prev_send_t_;
     if (delta_send >= (1 / WEBSOCKET_UPDATE_RATE))
@@ -103,12 +107,13 @@ bool BoatServer::SendWebsocketData(double t)
         // Create a BoatMessage protobuf
         msg::BoatMessage web_data;
 
-        // Set the time and state for the system.
+        // Set the time and all system info.
         web_data.set_t(t);
+        web_data.mutable_info()->set_name(boat_name_);
+        web_data.mutable_state()->set_t(t);
         web_data.mutable_state()->set_lat(state_->lat);
         web_data.mutable_state()->set_lon(state_->lon);
         web_data.mutable_state()->set_yaw(state_->yaw);
-        web_data.set_name(boat_name_);
         web_data.mutable_ctrl()->set_power(ctrl_->power);
         web_data.mutable_ctrl()->set_rudder(ctrl_->rudder);
 
