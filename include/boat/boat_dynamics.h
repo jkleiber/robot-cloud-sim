@@ -16,7 +16,7 @@ class BoatDynamics
 {
 public:
     BoatDynamics(BoatState *state, BoatControl *ctrl, const double &dt)
-        : state_(state), ctrl_(ctrl)
+        : state_(state), ctrl_(ctrl), dt_(dt)
     {
     }
     ~BoatDynamics() {}
@@ -28,7 +28,7 @@ public:
 private:
     BoatState *const state_;
     BoatControl *const ctrl_;
-    double dt_;
+    const double &dt_;
 
     // Subsystem updates.
     bool UpdatePropulsion(Eigen::VectorXd *xdot);
