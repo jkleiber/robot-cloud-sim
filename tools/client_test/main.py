@@ -19,7 +19,7 @@ def run():
         start_time = -1
         times = []
         for i in range(100):
-            state = stub.ControlBoat(BoatControl(power=1.0, rudder=1.0))
+            state = stub.ControlBoat(BoatControl(power=0.5, rudder=-1.0))
             if start_time < 0:
                 start_time = state.t
             else:

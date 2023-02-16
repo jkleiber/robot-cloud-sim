@@ -107,13 +107,17 @@ bool BoatServer::SendWebsocketData(double t)
         // Create a BoatMessage protobuf
         msg::BoatMessage web_data;
 
-        // Set the time and all system info.
+        // Set the time and system state.
         web_data.set_t(t);
         web_data.mutable_info()->set_name(boat_name_);
         web_data.mutable_state()->set_t(t);
         web_data.mutable_state()->set_lat(state_->lat);
         web_data.mutable_state()->set_lon(state_->lon);
         web_data.mutable_state()->set_yaw(state_->yaw);
+        web_data.mutable_state()->set_speed(state_->speed);
+        web_data.mutable_state()->set_prop_rpm(state_->prop_rpm);
+
+        // Set the control
         web_data.mutable_ctrl()->set_power(ctrl_->power);
         web_data.mutable_ctrl()->set_rudder(ctrl_->rudder);
 

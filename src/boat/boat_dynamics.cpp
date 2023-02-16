@@ -15,20 +15,23 @@ bool BoatDynamics::Init()
     // Inputs (u): motor power (%, 0-1)
     // States (x): propellor speed (rad/s), propellor acceleration(rad/s^2)
     prop_A_ = Eigen::MatrixXd::Zero(2, 2);
+    prop_A_(0, 0) = -5; // Higher speed -> more drag
     prop_A_(0, 1) = 1.0;
-    prop_A_(1, 1) = -0.125;
+    prop_A_(1, 1) = -2;
     prop_B_ = Eigen::VectorXd::Zero(2);
-    prop_B_(1) = 100.0;
+    prop_B_(1) = 500.0;
 
     // Linear system for boat velocity
     // Equation: xdot = A x(t) + B u(t)
     // Inputs (u): propellor speed (rad/s)
     // States (x): velocity (m/s), acceleration(m/s^2)
     vel_A_ = Eigen::MatrixXd::Zero(2, 2);
+    vel_A_(0, 0) = -0.35; // Higher speed -> more drag
     vel_A_(0, 1) = 1.0;
-    vel_A_(1, 1) = -0.8;
+    vel_A_(1, 0) = -0.0;
+    vel_A_(1, 1) = -0.5;
     vel_B_ = Eigen::VectorXd::Zero(2);
-    vel_B_(1) = 0.01;
+    vel_B_(1) = 0.001;
 
     // Linear parameter varying system for yaw
     // Equation: xdot = A x(t) + B(p) u(t)
@@ -72,10 +75,10 @@ bool BoatDynamics::Update()
 
     // Impose limits on the system
     // TODO: make better models that do this on their own.
-    VERIFY(Clamp(&prop_x_(0), 0.0, kPropMaxRPM));
+    // VERIFY(Clamp(&prop_x_(0), 0.0, kPropMaxRPM / kRPMPerRad));
     // TODO: decide if the boat should be able to go in reverse. This would
     // require reverse prop as well.
-    VERIFY(Clamp(&vel_x_(0), 0.0, kBoatMaxSpeed));
+    // VERIFY(Clamp(&vel_x_(0), 0.0, kBoatMaxSpeed));
 
     // Update the state pointer
     state_->prop_rpm = prop_x_(0) * kRPMPerRad;
@@ -107,7 +110,10 @@ bool BoatDynamics::UpdateVelocity(Eigen::VectorXd *xdot)
     VERIFY(xdot != nullptr);
     VERIFY(state_ != nullptr);
 
-    // Get the prop speed as input.
+    // Get the prop speed as input in rad/s
+    double prop_speed = prop_x_(0);
+
+    *xdot = vel_A_ * vel_x_ + vel_B_ * prop_speed;
 
     return true;
 }
@@ -118,6 +124,15 @@ bool BoatDynamics::UpdateYaw(Eigen::VectorXd *xdot)
     VERIFY(state_ != nullptr);
     VERIFY(ctrl_ != nullptr);
 
+    // Get the speed
+    double speed = state_->speed;
+
+    // Compute the speed factor.
+    // The control is effective to the speed squared, normalized on a range of
+    // [0, max speed] -> [0, 1]
+    double speed_normalized = speed / kBoatMaxSpeed;
+    double speed_factor = speed_normalized * speed_normalized;
+
     // Clamp the control input
     VERIFY(Clamp(&ctrl_->rudder, -20.0, 20.0));
 
@@ -126,7 +141,7 @@ bool BoatDynamics::UpdateYaw(Eigen::VectorXd *xdot)
     VERIFY(DegToRad(&rudder_rad));
 
     // Do the linear state update
-    *xdot = yaw_A_ * yaw_x_ + yaw_B_ * rudder_rad;
+    *xdot = yaw_A_ * yaw_x_ + yaw_B_ * rudder_rad * speed_factor;
 
     return true;
 }

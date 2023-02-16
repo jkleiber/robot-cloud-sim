@@ -76,8 +76,15 @@
         var lat = message.state.lat;
         var lon = message.state.lon;
         var yaw = message.state.yaw;
+        var speed = message.state.speed;
+        var propRpm = message.state.propRpm;
 
-        var msg_data_str = "t: " + t + "<br>Boat Name: " + name + "<br>lat: " + lat + "<br>lon: " + lon + "<br>yaw: " + yaw;
+        var msg_data_str = "t: " + t + "<br>Boat Name: " + name
+            + "<br>lat: " + lat
+            + "<br>lon: " + lon
+            + "<br>yaw: " + yaw
+            + "<br>speed: " + speed
+            + "<br>prop rpm: " + propRpm;
         boat_state_view.innerHTML = msg_data_str;
     }
 
