@@ -33,23 +33,29 @@ private:
     // Subsystem updates.
     bool UpdatePropulsion(Eigen::VectorXd *xdot);
     bool UpdateVelocity(Eigen::VectorXd *xdot);
+    bool UpdateRudder(Eigen::VectorXd *xdot);
     bool UpdateYaw(Eigen::VectorXd *xdot);
 
     // Subsystem states.
-    // Propellor
+    // Propeller
     Eigen::VectorXd prop_x_;
     // Boat Velocity
     Eigen::VectorXd vel_x_;
+    // Rudder
+    Eigen::VectorXd rud_x_;
     // Yaw
     Eigen::VectorXd yaw_x_;
 
     // Subsystem dynamics
-    // Propellor
+    // Propeller
     Eigen::MatrixXd prop_A_;
     Eigen::VectorXd prop_B_;
     // Velocity
     Eigen::MatrixXd vel_A_;
     Eigen::VectorXd vel_B_;
+    // Rudder
+    Eigen::MatrixXd rud_A_;
+    Eigen::VectorXd rud_B_;
     // Yaw
     Eigen::MatrixXd yaw_A_;
     Eigen::VectorXd yaw_B_;

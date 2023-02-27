@@ -12,7 +12,8 @@
 #include "boat/boat_dynamics.h"
 #include "boat/boat_server.h"
 
-#define PRINT_RATE 1.0 // Hz
+#define PRINT_RATE 1.0   // Hz
+#define SERVER_RATE 50.0 // Hz
 
 class BoatSimulator
 {
@@ -35,4 +36,7 @@ private:
     double t_;
     // Note: this is very important for simulator speed.
     double prev_print_t_ = -100;
+
+    // Server update rate tracker
+    double prev_serve_t_ = -100;
 };

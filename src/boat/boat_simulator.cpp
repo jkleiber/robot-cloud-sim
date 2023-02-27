@@ -5,7 +5,7 @@ bool BoatSimulator::Init()
 {
     // TODO: make dt configurable
     t_ = 0.0;
-    boat_data_.sim_info.dt = 5e-5; // 1e-7 is approx. 10x real time.
+    boat_data_.sim_info.dt = 1e-4;
 
     // Initialize server
     server_ = std::make_shared<BoatServer>(&boat_data_.state, &boat_data_.ctrl);
@@ -27,14 +27,16 @@ bool BoatSimulator::Run()
     // Start up the server
     VERIFY(server_->Start());
 
-    // t_ = 0.0;
     // Run the RPC management in a separate thread.
     std::thread rpc_thread(&BoatServer::RunRpc, server_.get());
 
     // Run the dynamics
     while (true)
     {
+        // Update the boat physics.
         VERIFY(boat_sys_->Update());
+
+        // Update the server.
         VERIFY(server_->Update(t_));
 
         // Update the time
