@@ -3,7 +3,20 @@
 <head>
     <title>Boat Simulator</title>
 
+    <!-- Boat simulator static files -->
+    <link rel="stylesheet" href="/static/boat/css/main.css" />
+
+    <!-- Protobuf -->
     <script src="//cdn.rawgit.com/dcodeIO/protobuf.js/6.10.2/dist/protobuf.min.js"></script>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+
+    <!-- SVG Markers -->
+    <script src="/static/boat/js/leaflet-svg-shape-markers.min.js"></script>
 </head>
 
 <body>
@@ -11,9 +24,30 @@
     <p id="b-state-view"></p>
     <h1>Boat Control</h1>
     <p id="b-control-view"></p>
+    <div id="b-map" class="map-view">
+    </div>
 </body>
 
 <script>
+    // Map
+    var map = L.map('b-map', {
+        center: [0.0, 0.0],
+        zoom: 8
+    });
+    var autoCenter = true;
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    }).addTo(map);
+    // var marker = L.marker(map.getCenter()).addTo(map);
+    var marker = L.shapeMarker(map.getCenter(), {
+        fillColor: "#03f4fc",
+        color: "white",
+        shape: "triangle",
+        fillOpacity: 1.0,
+        radius: 16
+    }).addTo(map);
+
+    // Websockets
     let socket = new WebSocket("ws://localhost:9001/boat_ui/ws");
     socket.binaryType = 'arraybuffer'
 
@@ -86,6 +120,16 @@
             + "<br>speed: " + speed
             + "<br>prop rpm: " + propRpm;
         boat_state_view.innerHTML = msg_data_str;
+
+        // Update the boat marker
+        boat_gps = new L.LatLng(lat, lon);
+        marker.setLatLng(boat_gps);
+        marker.setRotation(yaw);
+
+        // Pan the map if enabled
+        if (autoCenter) {
+            map.panTo(boat_gps);
+        }
     }
 
     function updateControlView(message) {

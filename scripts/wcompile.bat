@@ -13,3 +13,4 @@ cmake --build %COMPILE_WD%
 
 xcopy /e /k /h /i /Y ..\templates ..\build\apps\Debug\templates
 xcopy /e /k /h /i /Y ..\src\boat\*.proto ..\build\apps\Debug\static\boat
+xcopy /e /k /h /i /Y ..\server\static\boat\* ..\build\apps\Debug\static\boat

@@ -8,7 +8,7 @@ APP_DIR="$(pwd)/../build/apps"
 CONFIG_WD="$(pwd)/../config"
 TEMPLATES_WD="$(pwd)/../templates"
 VCPKG_PATH="$(pwd)/../vcpkg"
-PROTO_DIR="$(pwd)/../src/msg"
+PROTO_DIR="$(pwd)/../src/boat"
 
 # Use vcpkg toolchain
 cmake -B $COMPILE_WD -S .. -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake
@@ -26,34 +26,7 @@ then
     exit 2
 fi
 
-# Copy the templates to the binary location, exit on failure
-cd $APP_DIR
-rm -rf $APP_DIR/templates
-cp -R $TEMPLATES_WD $APP_DIR
-if [ $? -ne 0 ]
-then
-    echo "Error: Failed to copy templates"
-    exit 3
-fi
-
-# Copy the protobuf messages to the binary location, exit on failure
-cd $APP_DIR
-mkdir -p $APP_DIR/static/boat/ 
-cp -R $PROTO_DIR/*.proto $APP_DIR/static/boat/ 
-if [ $? -ne 0 ]
-then
-    echo "Error: Failed to copy protocols"
-    exit 4
-fi
-
-# Copy the current configuration to the binary location, exit on failure
-# cd $COMPILE_WD
-# rm -rf $COMPILE_WD/config
-# cp -R $CONFIG_WD $COMPILE_WD
-# if [ $? -ne 0 ]
-# then
-#     echo "Error: Failed to copy configuration files"
-#     exit 3
-# fi
+# Copy the static files (resources, protobufs, etc.) to the binary directory.
+./cp_static
 
 echo "Compiled successfully!"

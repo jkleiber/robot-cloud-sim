@@ -36,7 +36,4 @@ private:
     double t_;
     // Note: this is very important for simulator speed.
     double prev_print_t_ = -100;
-
-    // Server update rate tracker
-    double prev_serve_t_ = -100;
 };

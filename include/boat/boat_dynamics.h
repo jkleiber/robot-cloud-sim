@@ -11,6 +11,7 @@
 const double kBoatMaxSpeed = 10; // m/s, approx. 20 kts.
 const double kPropMaxRPM = 7600; // rpm, approx. 800 rad/s.
 const double kRPMPerRad = 9.5492968;
+const double kEarthRadius = 6371000.0; // meters, earth's radius.
 
 class BoatDynamics
 {
@@ -35,6 +36,9 @@ private:
     bool UpdateVelocity(Eigen::VectorXd *xdot);
     bool UpdateRudder(Eigen::VectorXd *xdot);
     bool UpdateYaw(Eigen::VectorXd *xdot);
+
+    // Global updates.
+    bool IntegrateGps();
 
     // Subsystem states.
     // Propeller

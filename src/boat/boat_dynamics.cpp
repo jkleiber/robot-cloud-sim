@@ -98,6 +98,9 @@ bool BoatDynamics::Update()
     VERIFY(RadToDeg(&yaw_rad));
     state_->yaw = yaw_rad;
 
+    // Update the lat/lon.
+    VERIFY(this->IntegrateGps());
+
     return true;
 }
 
@@ -161,6 +164,47 @@ bool BoatDynamics::UpdateYaw(Eigen::VectorXd *xdot)
 
     // Do the linear state update
     *xdot = yaw_A_ * yaw_x_ + yaw_B_ * rud_x_(0) * speed_factor;
+
+    return true;
+}
+
+bool BoatDynamics::IntegrateGps()
+{
+    VERIFY(state_ != nullptr);
+
+    // Find distance travelled (in m) during timestep.
+    double dist = state_->speed * dt_;
+
+    // Get heading (note that state_->yaw is in degrees so use yaw_x_ in radians
+    // instead).
+    double hdg = yaw_x_(0);
+
+    // Get current (about to be previous) coordinates.
+    double prev_lat = state_->lat;
+    double prev_lon = state_->lon;
+
+    // Convert to radians.
+    VERIFY(DegToRad(&prev_lat));
+    VERIFY(DegToRad(&prev_lon));
+
+    // Compute the next lat/lon (in radians).
+    double next_lat = asin(sin(prev_lat) * cos(dist / kEarthRadius) +
+                           cos(prev_lat) * sin(dist / kEarthRadius) * cos(hdg));
+    double next_lon =
+        prev_lon +
+        atan2(sin(hdg) * sin(dist / kEarthRadius) * cos(prev_lat),
+              cos(dist / kEarthRadius) - sin(prev_lat) * sin(next_lat));
+
+    // Convert back to degrees.
+    VERIFY(RadToDeg(&next_lat));
+    VERIFY(RadToDeg(&next_lon));
+
+    // Wrap the longitude to (-180.0, 180.0)
+    next_lon = fmod((next_lon + 540.0), 360.0) - 180.0;
+
+    // Apply the GPS update.
+    state_->lat = next_lat;
+    state_->lon = next_lon;
 
     return true;
 }
