@@ -14,17 +14,20 @@
         integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
     <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
         integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
-
-    <!-- SVG Markers -->
-    <script src="/static/boat/js/leaflet-svg-shape-markers.min.js"></script>
 </head>
 
 <body>
-    <h1>Boat State</h1>
-    <p id="b-state-view"></p>
-    <h1>Boat Control</h1>
-    <p id="b-control-view"></p>
-    <div id="b-map" class="map-view">
+    <div class="page-container">
+        <div class="left-narrow-container">
+            <h1>Boat State</h1>
+            <p id="b-state-view"></p>
+            <h1>Boat Control</h1>
+            <p id="b-control-view"></p>
+        </div>
+        <div class="right-wide-container">
+            <div id="b-map" class="map-view">
+            </div>
+        </div>
     </div>
 </body>
 
@@ -38,13 +41,36 @@
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
         attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
     }).addTo(map);
-    // var marker = L.marker(map.getCenter()).addTo(map);
-    var marker = L.shapeMarker(map.getCenter(), {
-        fillColor: "#03f4fc",
-        color: "white",
-        shape: "triangle",
-        fillOpacity: 1.0,
-        radius: 16
+
+    const boatIcon = L.divIcon({
+        html: `
+        <svg
+        width="24.61795mm"
+        height="31.004074mm"
+        viewBox="0 0 24.61795 31.004074"
+        version="1.1"
+        id="boat-svg"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:svg="http://www.w3.org/2000/svg">
+        <defs
+            id="defs2" />
+        <g
+            id="boat-arrow"
+            transform="translate(-65.721529,-64.489485)">
+            <path
+            id="path4004"
+            style="fill:#FFF;fill-opacity:1;stroke:#000000;stroke-width:1.76798;stroke-dasharray:none;stroke-opacity:1"
+            d="m 78.030504,66.88539 -5.502778,13.862086 -5.504074,13.862088 h 0.67338 l 10.333472,-8.502406 10.333469,8.502406 h 0.673383 L 83.533279,80.747476 Z" />
+        </g>
+        </svg>`,
+        className: "boat-icon",
+        id: "boat-icon-div",
+        iconSize: [24, 40],
+        iconAnchor: [12, 20],
+    });
+
+    var boatMarker = L.marker(map.getCenter(), {
+        icon: boatIcon
     }).addTo(map);
 
     // Websockets
@@ -123,8 +149,12 @@
 
         // Update the boat marker
         boat_gps = new L.LatLng(lat, lon);
-        marker.setLatLng(boat_gps);
-        marker.setRotation(yaw);
+        boatMarker.setLatLng(boat_gps);
+
+        // Update the boat rotation
+        var boat_arrow = document.getElementById("boat-svg")
+        boat_arrow.setAttribute("transform", "rotate(" + yaw + ")");
+        boat_arrow.setAttribute("transform-origin", "50% 50%")
 
         // Pan the map if enabled
         if (autoCenter) {
