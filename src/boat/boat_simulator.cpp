@@ -5,7 +5,7 @@ bool BoatSimulator::Init()
 {
     // TODO: make dt configurable
     t_ = 0;
-    boat_data_.sim_info.dt = 1000 * kMicro;
+    boat_data_.sim_info.dt = 100 * kMicro;
 
     // Initialize server
     server_ = std::make_shared<BoatServer>(&boat_data_.state, &boat_data_.ctrl);
