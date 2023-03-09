@@ -63,14 +63,14 @@ bool BoatServer::Start()
     return true;
 }
 
-bool BoatServer::Update(double t)
+bool BoatServer::Update(unsigned long long t)
 {
     // Update the server time.
     t_ = t;
 
     // Maintain a specific update rate to the GUI
-    double delta_send = t - prev_send_t_;
-    if (delta_send >= (1 / WEBSOCKET_UPDATE_RATE))
+    unsigned long long delta_send = t - prev_send_t_;
+    if (delta_send >= kWebsocketUpdatePeriod)
     {
         VERIFY(SendWebsocketData(t));
     }
@@ -89,7 +89,7 @@ bool BoatServer::RunRpc()
     return true;
 }
 
-bool BoatServer::SendWebsocketData(double t)
+bool BoatServer::SendWebsocketData(unsigned long long t)
 {
     VERIFY(state_ != nullptr);
     VERIFY(ctrl_ != nullptr);
@@ -108,9 +108,10 @@ bool BoatServer::SendWebsocketData(double t)
         msg::BoatMessage web_data;
 
         // Set the time and system state.
-        web_data.set_t(t);
+        double t_float = static_cast<double>(t) / static_cast<double>(kSec);
+        web_data.set_t(t_float);
         web_data.mutable_info()->set_name(boat_name_);
-        web_data.mutable_state()->set_t(t);
+        web_data.mutable_state()->set_t(t_float);
         web_data.mutable_state()->set_lat(state_->lat);
         web_data.mutable_state()->set_lon(state_->lon);
         web_data.mutable_state()->set_yaw(state_->yaw);

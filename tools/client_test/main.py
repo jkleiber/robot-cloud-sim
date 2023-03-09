@@ -19,14 +19,14 @@ def run():
         start_time = -1
         times = []
         for i in range(100):
-            state = stub.ControlBoat(BoatControl(power=1, rudder=1))
+            state = stub.ControlBoat(BoatControl(power=1, rudder=-0.1))
             if start_time < 0:
                 start_time = state.t
             else:
                 elapsed_time = state.t - start_time
                 times.append(elapsed_time)
                 start_time = state.t
-            print(state.t)
+            print(state.speed)
 
         # Report average time
         avg_time = np.average(times)

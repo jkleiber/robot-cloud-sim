@@ -8,6 +8,7 @@
 
 #include "boat/boat_data.h"
 #include "boat/boat_msg.grpc.pb.h"
+#include "core/time.h"
 
 using grpc::CallbackServerContext;
 using grpc::ServerUnaryReactor;
@@ -47,8 +48,11 @@ public:
         ctrl_->power = ctrl->power();
         ctrl_->rudder = ctrl->rudder();
 
+        // Make time a double
+        double t = static_cast<double>(t_) / static_cast<double>(kSec);
+
         // Respond with the current boat state.
-        state->set_t(t_);
+        state->set_t(t);
         state->set_lat(state_.lat);
         state->set_lon(state_.lon);
         state->set_yaw(state_.yaw);
@@ -62,8 +66,12 @@ public:
                                  const msg::BoatRequest *req,
                                  msg::BoatState *state) override
     {
+
+        // Make time a double
+        double t = static_cast<double>(t_) / static_cast<double>(kSec);
+
         // Respond with the current boat state.
-        state->set_t(t_);
+        state->set_t(t);
         state->set_lat(state_.lat);
         state->set_lon(state_.lon);
         state->set_yaw(state_.yaw);

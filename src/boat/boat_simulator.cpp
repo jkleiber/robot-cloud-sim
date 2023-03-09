@@ -4,8 +4,8 @@
 bool BoatSimulator::Init()
 {
     // TODO: make dt configurable
-    t_ = 0.0;
-    boat_data_.sim_info.dt = 1e-4;
+    t_ = 0;
+    boat_data_.sim_info.dt = 1000 * kMicro;
 
     // Initialize server
     server_ = std::make_shared<BoatServer>(&boat_data_.state, &boat_data_.ctrl);
@@ -51,9 +51,21 @@ bool BoatSimulator::Run()
         // in order to maintain approximately 10x speed performance in the sim.
         // A better way to do this would be to maintain tighter control on the
         // loop timing, but this is difficult to do across operating systems.
-        if ((t_ - prev_print_t_) > (1 / PRINT_RATE))
+        if ((t_ - prev_print_t_) > kPrintPeriod)
         {
-            std ::cout << "t=" << t_ << std::endl;
+            auto cur_clock_time = std::chrono::system_clock::now();
+            auto elapsed_clock_time =
+                std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    cur_clock_time - prev_print_clock_time_);
+            prev_print_clock_time_ = cur_clock_time;
+
+            // Calculate speed up as (sim time elapsed / actual time elapsed).
+            double speedup_pct =
+                static_cast<double>(kPrintPeriod) /
+                static_cast<double>(elapsed_clock_time.count());
+
+            std ::cout << "t=" << t_ / kSec << " | " << std::fixed
+                       << std::setprecision(2) << speedup_pct << "x\n";
             prev_print_t_ = t_;
         }
     }

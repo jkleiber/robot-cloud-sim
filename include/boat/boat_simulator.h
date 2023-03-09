@@ -12,8 +12,7 @@
 #include "boat/boat_dynamics.h"
 #include "boat/boat_server.h"
 
-#define PRINT_RATE 1.0   // Hz
-#define SERVER_RATE 50.0 // Hz
+const unsigned long long kPrintPeriod = kSec;
 
 class BoatSimulator
 {
@@ -33,7 +32,10 @@ private:
     BoatData boat_data_;
 
     // Time
-    double t_;
+    unsigned long long t_;
     // Note: this is very important for simulator speed.
-    double prev_print_t_ = -100;
+    unsigned long long prev_print_t_ = 0;
+    // Track speedup from simulator
+    std::chrono::time_point<std::chrono::system_clock> prev_print_clock_time_ =
+        std::chrono::system_clock::now();
 };

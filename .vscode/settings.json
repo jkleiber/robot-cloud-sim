@@ -113,6 +113,7 @@
         "*.tcc": "cpp",
         "string_view": "cpp",
         "rope": "cpp",
-        "slist": "cpp"
+        "slist": "cpp",
+        "hash_map": "cpp"
     }
 }

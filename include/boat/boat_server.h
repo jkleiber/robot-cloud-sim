@@ -15,9 +15,10 @@
 #include "boat/boat_rpc_callback.h"
 #include "core/logging.h"
 #include "core/rpc_manager.h"
+#include "core/time.h"
 
 // TODO: make this configurable.
-#define WEBSOCKET_UPDATE_RATE 0.5f // Hz
+const unsigned long long kWebsocketUpdatePeriod = 500 * kMilli; // sec
 
 #define CROW_ENFORCE_WS_SPEC
 
@@ -31,7 +32,7 @@ public:
 
     bool Init();
     bool Start();
-    bool Update(double t);
+    bool Update(unsigned long long t);
 
     // This should be run in another thread in order to allow the rest of the
     // program to run.
@@ -51,7 +52,7 @@ private:
     std::unordered_set<crow::websocket::connection *> conns_;
 
     // Websocket timings
-    double prev_send_t_ = -100;
+    unsigned long long prev_send_t_ = 0;
 
     // Boat state
     double t_ = 0;
@@ -59,5 +60,5 @@ private:
     BoatControl *const ctrl_;
     std::string boat_name_;
 
-    bool SendWebsocketData(double t);
+    bool SendWebsocketData(unsigned long long t);
 };

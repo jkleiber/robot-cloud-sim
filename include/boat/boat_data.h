@@ -3,16 +3,16 @@
 
 typedef struct boat_state_t
 {
-    double lat = 0.0;
-    double lon = 0.0;
-    double yaw = 0.0;
+    double lat = 27.698153;
+    double lon = -141.785643;
+    double yaw = -110.0;
     double speed = 0.0;
     double prop_rpm = 0.0;
 } BoatState;
 
 typedef struct boat_sim_info_t
 {
-    double dt;
+    unsigned long long dt;
 } BoatSimInfo;
 
 typedef struct boat_info_t

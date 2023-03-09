@@ -24,7 +24,7 @@ bool BoatDynamics::Init()
     prop_A_(0, 0) = -1; // Higher speed -> more drag
     prop_A_(0, 1) = 1.0;
     prop_A_(1, 1) = -2;
-    prop_B_ = Eigen::VectorXd::Zero(2);
+    prop_B_ = Eigen::Vector2d::Zero(2);
     prop_B_(1) = 500.0;
 
     // Linear system for boat velocity
@@ -36,7 +36,7 @@ bool BoatDynamics::Init()
     vel_A_(0, 1) = 1.0;
     vel_A_(1, 0) = -0.0;
     vel_A_(1, 1) = -0.75;
-    vel_B_ = Eigen::VectorXd::Zero(2);
+    vel_B_ = Eigen::Vector2d::Zero(2);
     vel_B_(1) = 0.015;
 
     // Linear system for rudder angle
@@ -47,7 +47,7 @@ bool BoatDynamics::Init()
     rud_A_(0, 1) = 1.0;
     rud_A_(1, 0) = -1.0;
     rud_A_(1, 1) = -3;
-    rud_B_ = Eigen::VectorXd::Zero(2);
+    rud_B_ = Eigen::Vector2d::Zero(2);
     rud_B_(1) = 1.0;
 
     // Linear parameter varying system for yaw
@@ -59,8 +59,13 @@ bool BoatDynamics::Init()
     yaw_A_ = Eigen::MatrixXd::Zero(2, 2);
     yaw_A_(0, 1) = 1.0;
     yaw_A_(1, 1) = -0.99;
-    yaw_B_ = Eigen::VectorXd::Zero(2);
-    yaw_B_(1) = 0.5;
+    yaw_B_ = Eigen::Vector2d::Zero(2);
+    yaw_B_(1) = 0.05;
+
+    // Set initial conditions
+    double yaw_rad = state_->yaw;
+    VERIFY(DegToRad(&yaw_rad));
+    yaw_x_(0) = yaw_rad;
 
     return true;
 }
@@ -69,42 +74,39 @@ bool BoatDynamics::Update()
 {
     VERIFY(state_ != nullptr);
 
-    // Derivatives
-    Eigen::VectorXd prop_xdot = Eigen::VectorXd::Zero(2);
-    Eigen::VectorXd vel_xdot = Eigen::VectorXd::Zero(2);
-    Eigen::VectorXd rud_xdot = Eigen::VectorXd::Zero(2);
-    Eigen::VectorXd yaw_xdot = Eigen::VectorXd::Zero(2);
-
     ///// Do subsystem dynamics updates
     // Propulsion Subsystem
-    VERIFY(this->UpdatePropulsion(&prop_xdot));
-    VERIFY(this->UpdateVelocity(&vel_xdot));
+    VERIFY(this->UpdatePropulsion(&prop_xdot_));
+    VERIFY(this->UpdateVelocity(&vel_xdot_));
 
     // Lateral Subsystem
-    VERIFY(this->UpdateRudder(&rud_xdot));
-    VERIFY(this->UpdateYaw(&yaw_xdot));
+    VERIFY(this->UpdateRudder(&rud_xdot_));
+    VERIFY(this->UpdateYaw(&yaw_xdot_));
+
+    // Convert dt_ to seconds as a double.
+    double dt = static_cast<double>(dt_) / static_cast<double>(kSec);
 
     // Integrate
-    prop_x_ += prop_xdot * dt_;
-    vel_x_ += vel_xdot * dt_;
-    rud_x_ += rud_xdot * dt_;
-    yaw_x_ += yaw_xdot * dt_;
+    prop_x_ += prop_xdot_ * dt;
+    vel_x_ += vel_xdot_ * dt;
+    rud_x_ += rud_xdot_ * dt;
+    yaw_x_ += yaw_xdot_ * dt;
 
     // Update the state pointer
     state_->prop_rpm = prop_x_(0) * kRPMPerRad;
     state_->speed = vel_x_(0);
 
-    double yaw_rad = yaw_x_(0);
-    VERIFY(RadToDeg(&yaw_rad));
-    state_->yaw = yaw_rad;
+    double yaw_deg = yaw_x_(0);
+    VERIFY(RadToDeg(&yaw_deg));
+    state_->yaw = yaw_deg;
 
     // Update the lat/lon.
-    VERIFY(this->IntegrateGps());
+    VERIFY(this->IntegrateGps(dt));
 
     return true;
 }
 
-bool BoatDynamics::UpdatePropulsion(Eigen::VectorXd *xdot)
+bool BoatDynamics::UpdatePropulsion(Eigen::Vector2d *xdot)
 {
     VERIFY(xdot != nullptr);
     VERIFY(ctrl_ != nullptr);
@@ -118,20 +120,18 @@ bool BoatDynamics::UpdatePropulsion(Eigen::VectorXd *xdot)
     return true;
 }
 
-bool BoatDynamics::UpdateVelocity(Eigen::VectorXd *xdot)
+bool BoatDynamics::UpdateVelocity(Eigen::Vector2d *xdot)
 {
     VERIFY(xdot != nullptr);
     VERIFY(state_ != nullptr);
 
     // Get the prop speed as input in rad/s
-    double prop_speed = prop_x_(0);
-
-    *xdot = vel_A_ * vel_x_ + vel_B_ * prop_speed;
+    *xdot = vel_A_ * vel_x_ + vel_B_ * prop_x_(0);
 
     return true;
 }
 
-bool BoatDynamics::UpdateRudder(Eigen::VectorXd *xdot)
+bool BoatDynamics::UpdateRudder(Eigen::Vector2d *xdot)
 {
     VERIFY(xdot != nullptr);
     VERIFY(ctrl_ != nullptr);
@@ -148,18 +148,15 @@ bool BoatDynamics::UpdateRudder(Eigen::VectorXd *xdot)
     return true;
 }
 
-bool BoatDynamics::UpdateYaw(Eigen::VectorXd *xdot)
+bool BoatDynamics::UpdateYaw(Eigen::Vector2d *xdot)
 {
     VERIFY(xdot != nullptr);
     VERIFY(state_ != nullptr);
 
-    // Get the speed
-    double speed = state_->speed;
-
     // Compute the speed factor.
     // The control is effective to the speed squared, normalized on a range of
     // [0, max speed] -> [0, 1]
-    double speed_normalized = speed / kBoatMaxSpeed;
+    double speed_normalized = state_->speed / kBoatMaxSpeed;
     double speed_factor = speed_normalized * speed_normalized;
 
     // Do the linear state update
@@ -168,12 +165,12 @@ bool BoatDynamics::UpdateYaw(Eigen::VectorXd *xdot)
     return true;
 }
 
-bool BoatDynamics::IntegrateGps()
+bool BoatDynamics::IntegrateGps(double dt)
 {
     VERIFY(state_ != nullptr);
 
     // Find distance travelled (in m) during timestep.
-    double dist = state_->speed * dt_;
+    double dist = state_->speed * dt;
 
     // Get heading (note that state_->yaw is in degrees so use yaw_x_ in radians
     // instead).
