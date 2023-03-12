@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package msg;
+
+message AUVState {
+    optional double t = 1;
+    
+    // Body relative velocities
+    optional double surge = 2;
+    optional double sway = 3;
+    optional double heave = 4;
+
+    // Body relative angular rates
+    optional double roll_rate = 5;
+    optional double pitch_rate = 6;
+    optional double yaw_rate = 7;
+
+    // Global position
+    optional double lat = 8;
+    optional double lon = 9;
+    optional double depth = 10;
+
+    // Global orientation
+    optional double roll = 11;
+    optional double pitch = 12;
+    optional double yaw = 13;
+
+    // Propulsion
+    optional double prop_rpm = 14;
+}
+
+message AUVControl {
+    // Motor output power from [0, 1]
+    optional double power = 1;
+
+    // Rudder in degrees from [-20, 20]
+    optional double rudder = 2;
+
+    // Elevator in degrees from [-20, 20]
+    optional double elevator = 3;
+}
+
+message AUVInfo {
+    optional string name = 1;
+}
+
+message AUVMessage {
+    optional double t = 1;
+    optional AUVInfo info = 2;
+    optional AUVState state = 3;
+    optional AUVControl ctrl = 4;
+}
+
+// The AUV service definition.
+service AUVService {
+    // Sends a greeting
+    rpc SayHello (AUVRequest) returns (AUVResponse) {}
+
+    rpc SayHelloStreamReply (AUVRequest) returns (stream AUVResponse) {}
+
+    rpc ControlAUV (AUVControl) returns (AUVState) {}
+
+    rpc GetState (AUVRequest) returns (AUVState) {}
+}
+  
+// The request message containing the AUV's name.
+message AUVRequest {
+    string name = 1;
+}
+
+// The response message containing the greeting
+message AUVResponse {
+    string message = 1;
+}

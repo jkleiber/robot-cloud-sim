@@ -1,0 +1,28 @@
+div.map-view {
+    height: 100%;
+}
+
+/* Containers */
+.page-container {
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+    display: flex;
+}
+
+.left-narrow-container {
+    width: 33%;
+}
+
+.right-wide-container {
+    width: 100%;
+}
+
+/* SVG Icons */
+svg {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+}

@@ -1,0 +1,176 @@
+<html>
+
+<head>
+    <title>Boat Simulator</title>
+
+    <!-- Boat simulator static files -->
+    <link rel="stylesheet" href="/static/boat/css/main.css" />
+
+    <!-- Protobuf -->
+    <script src="//cdn.rawgit.com/dcodeIO/protobuf.js/6.10.2/dist/protobuf.min.js"></script>
+
+    <!-- Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM=" crossorigin=""></script>
+</head>
+
+<body>
+    <div class="page-container">
+        <div class="left-narrow-container">
+            <h1>Boat State</h1>
+            <p id="b-state-view"></p>
+            <h1>Boat Control</h1>
+            <p id="b-control-view"></p>
+        </div>
+        <div class="right-wide-container">
+            <div id="b-map" class="map-view">
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    // Map
+    var map = L.map('b-map', {
+        center: [0.0, 0.0],
+        zoom: 8
+    });
+    var autoCenter = true;
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    }).addTo(map);
+
+    const boatIcon = L.divIcon({
+        html: `
+        <svg
+        width="24.61795mm"
+        height="31.004074mm"
+        viewBox="0 0 24.61795 31.004074"
+        version="1.1"
+        id="boat-svg"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:svg="http://www.w3.org/2000/svg">
+        <defs
+            id="defs2" />
+        <g
+            id="boat-arrow"
+            transform="translate(-65.721529,-64.489485)">
+            <path
+            id="path4004"
+            style="fill:#FFF;fill-opacity:1;stroke:#000000;stroke-width:1.76798;stroke-dasharray:none;stroke-opacity:1"
+            d="m 78.030504,66.88539 -5.502778,13.862086 -5.504074,13.862088 h 0.67338 l 10.333472,-8.502406 10.333469,8.502406 h 0.673383 L 83.533279,80.747476 Z" />
+        </g>
+        </svg>`,
+        className: "boat-icon",
+        id: "boat-icon-div",
+        iconSize: [24, 40],
+        iconAnchor: [12, 20],
+    });
+
+    var boatMarker = L.marker(map.getCenter(), {
+        icon: boatIcon
+    }).addTo(map);
+
+    // Websockets
+    let socket = new WebSocket("ws://localhost:9001/boat_ui/ws");
+    socket.binaryType = 'arraybuffer'
+
+    var boat_msg_root = null;
+    var BoatMessage = null;
+    protobuf.load("/static/boat/boat_msg.proto", function (err, root) {
+        if (err) {
+            throw err;
+        }
+        boat_msg_root = root;
+        BoatMessage = boat_msg_root.lookupType("BoatMessage");
+    });
+
+    socket.onopen = function (e) {
+        console.log("[open] Connection established");
+    };
+
+    socket.onmessage = function (event) {
+        // Take the data from the event string
+        var msg = event.data
+
+        // Create a buffer from the message data
+        var buffer = new Uint8Array(msg)
+
+        // Decode the message
+        var message = BoatMessage.decode(buffer);
+
+        // Update the UI display
+        updateDisplay(message);
+    };
+
+    socket.onclose = function (event) {
+        if (event.wasClean) {
+            console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+        } else {
+            // e.g. server process killed or network down
+            // event.code is usually 1006 in this case
+            console.log('[close] Connection died');
+        }
+    };
+
+    socket.onerror = function (error) {
+        console.log(`[error] ${error.data}`);
+    };
+
+    function updateDisplay(message) {
+        // Update the boat state.
+        updateBoatStateView(message);
+
+        // Update control inputs.
+        updateControlView(message);
+    }
+
+    function updateBoatStateView(message) {
+        var boat_state_view = document.getElementById("b-state-view");
+
+        // Parse the message
+        var t = message.t;
+        var name = message.info.name;
+        var lat = message.state.lat;
+        var lon = message.state.lon;
+        var yaw = message.state.yaw;
+        var speed = message.state.speed;
+        var propRpm = message.state.propRpm;
+
+        var msg_data_str = "t: " + t + "<br>Boat Name: " + name
+            + "<br>lat: " + lat
+            + "<br>lon: " + lon
+            + "<br>yaw: " + yaw
+            + "<br>speed: " + speed
+            + "<br>prop rpm: " + propRpm;
+        boat_state_view.innerHTML = msg_data_str;
+
+        // Update the boat marker
+        boat_gps = new L.LatLng(lat, lon);
+        boatMarker.setLatLng(boat_gps);
+
+        // Update the boat rotation
+        var boat_arrow = document.getElementById("boat-svg")
+        boat_arrow.setAttribute("transform", "rotate(" + yaw + ")");
+        boat_arrow.setAttribute("transform-origin", "50% 50%")
+
+        // Pan the map if enabled
+        if (autoCenter) {
+            map.panTo(boat_gps);
+        }
+    }
+
+    function updateControlView(message) {
+        var boat_ctrl_view = document.getElementById("b-control-view");
+
+        var power = message.ctrl.power;
+        var rudder = message.ctrl.rudder;
+
+        var msg_str = "Power: " + power + "<br>Rudder: " + rudder;
+        boat_ctrl_view.innerHTML = msg_str;
+    }
+</script>
+
+</html>
