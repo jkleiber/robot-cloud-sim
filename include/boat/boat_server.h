@@ -15,6 +15,7 @@
 #include "boat/boat_rpc_callback.h"
 #include "core/logging.h"
 #include "core/rpc_manager.h"
+#include "core/server.h"
 #include "core/time.h"
 
 // TODO: make this configurable.
@@ -22,10 +23,11 @@ const unsigned long long kWebsocketUpdatePeriod = 500 * kMilli; // sec
 
 #define CROW_ENFORCE_WS_SPEC
 
-class BoatServer
+class BoatServer : public SimServer
 {
 public:
-    BoatServer(BoatState *state, BoatControl *ctrl) : state_(state), ctrl_(ctrl)
+    BoatServer(std::string name, BoatState *state, BoatControl *ctrl)
+        : SimServer(name), state_(state), ctrl_(ctrl)
     {
     }
     ~BoatServer() {}

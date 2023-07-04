@@ -7,9 +7,19 @@
 
 int main(int argc, char **argv)
 {
+    // Initialize and start the simulator.
     BoatSimulator sim;
     VERIFY(sim.Init());
-    VERIFY(sim.Run());
+    VERIFY(sim.Start());
+
+    // Run the simulator.
+    while (true)
+    {
+        VERIFY(sim.Run());
+    }
+
+    // Stop the simulator.
+    VERIFY(sim.Stop());
 
     return 0;
 }

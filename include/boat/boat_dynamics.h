@@ -6,6 +6,7 @@
 #include "boat/boat_data.h"
 #include "core/logging.h"
 #include "core/math_utils.h"
+#include "core/sim_component.h"
 #include "core/time.h"
 
 // TODO: parameterize boat limitations
@@ -14,12 +15,12 @@ const double kPropMaxRPM = 7600; // rpm, approx. 800 rad/s.
 const double kRPMPerRad = 9.5492968;
 const double kEarthRadius = 6371000.0; // meters, earth's radius.
 
-class BoatDynamics
+class BoatDynamics : public SimComponent
 {
 public:
-    BoatDynamics(BoatState *state, BoatControl *ctrl,
+    BoatDynamics(std::string name, BoatState *state, BoatControl *ctrl,
                  const unsigned long long &dt)
-        : state_(state), ctrl_(ctrl), dt_(dt)
+        : SimComponent(name), state_(state), ctrl_(ctrl), dt_(dt)
     {
     }
     ~BoatDynamics() {}

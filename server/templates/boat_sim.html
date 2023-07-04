@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="/static/boat/css/main.css" />
 
     <!-- Protobuf -->
-    <script src="//cdn.rawgit.com/dcodeIO/protobuf.js/6.10.2/dist/protobuf.min.js"></script>
+    <script src="https://cdn.rawgit.com/dcodeIO/protobuf.js/6.10.2/dist/protobuf.min.js"></script>
 
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
@@ -100,6 +100,8 @@
 
         // Decode the message
         var message = BoatMessage.decode(buffer);
+
+        console.log("message received")
 
         // Update the UI display
         updateDisplay(message);

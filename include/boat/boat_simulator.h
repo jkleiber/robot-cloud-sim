@@ -6,6 +6,7 @@
 #include <thread>
 
 #include "core/logging.h"
+#include "core/simulator.h"
 #include "core/time.h"
 
 #include "boat/boat_data.h"
@@ -14,25 +15,24 @@
 
 const unsigned long long kPrintPeriod = kSec;
 
-class BoatSimulator
+class BoatSimulator : public Simulator
 {
 public:
-    BoatSimulator() {}
-    ~BoatSimulator() {}
+    BoatSimulator() : rpc_thread_() {}
+    ~BoatSimulator() { bool result_ = this->Stop(); }
 
     bool Init();
+    bool Start();
     bool Run();
+    bool Stop();
 
 private:
-    // Server and dynamics for the boat.
-    std::shared_ptr<BoatServer> server_;
-    std::shared_ptr<BoatDynamics> boat_sys_;
-
     // Simulator data
     BoatData boat_data_;
 
-    // Time
-    unsigned long long t_;
+    // RPC thread
+    std::thread rpc_thread_;
+
     // Note: this is very important for simulator speed.
     unsigned long long prev_print_t_ = 0;
     // Track speedup from simulator
