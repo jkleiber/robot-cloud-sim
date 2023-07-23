@@ -5,6 +5,7 @@
         "eigen3",
         "crow",
         "protobuf",
-        "grpc"
+        "grpc",
+        "rapidjson"
     ]
 }

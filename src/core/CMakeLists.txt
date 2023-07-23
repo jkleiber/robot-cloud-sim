@@ -16,6 +16,7 @@ set_target_properties(cloud_sim_core PROPERTIES LINKER_LANGUAGE CXX)
 # find_package(Crow CONFIG REQUIRED)
 # find_package(Eigen3 CONFIG REQUIRED)
 find_package(gRPC CONFIG REQUIRED)
+find_package(RapidJSON CONFIG REQUIRED)
 
 # Target all library dependencies
 target_link_libraries(cloud_sim_core
@@ -23,6 +24,7 @@ target_link_libraries(cloud_sim_core
     gRPC::grpc
     gRPC::grpc++
     gRPC::grpc++_reflection
+    rapidjson
 )
 
 # Target the include folder
